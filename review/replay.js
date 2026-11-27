@@ -2,23 +2,19 @@
 const report = JSON.parse(document.getElementById('report').textContent);
 const cases = report.cases;
 const get = id => document.getElementById(id);
-const time = new Intl.DateTimeFormat('en-GB', {
-  timeZone: report.timezone, day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
-});
-const stories = {
-  P118: ['The courier missed the pickup.', 'The return is still with the shopper. Follow the carrier alert through to a new pickup time.'],
-  P102: ['Is the courier still coming?', 'The pickup window has ended. The shopper writes first, and the carrier has yet to confirm what happened.']
-};
+const clock = new Intl.DateTimeFormat('en-GB',{timeZone:report.timezone,hour:'2-digit',minute:'2-digit'});
+const date = new Intl.DateTimeFormat('en-GB',{timeZone:report.timezone,weekday:'short',day:'numeric',month:'short'});
 const actors = {
-  carrier: ['truck','Carrier','Pickup agent'],
-  shopper: ['user','Shopper','Pickup agent'],
-  checks: ['agent','Pickup agent','Internal checks'],
-  agent: ['mail','Pickup agent','Shopper'],
-  timer: ['clock','Scheduled check','Pickup agent'],
-  support: ['headset','Pickup agent','Support'],
-  record: ['file','Pickup agent','Case record']
+  shopper:['user','Shopper'], agent:['mail','Pickup agent'], checks:['agent','Pickup agent'],
+  carrier:['truck','Carrier'], timer:['clock','Scheduled check'], support:['headset','Pickup agent'], record:['file','Case record']
 };
-let current = cases.find(item => item.id === 'P118');
+const stateLabels = {
+  OFFERED:'Options offered', RESOLVED:'Pickup confirmed', HUMAN_REVIEW:'With the team', WINDOW_OPEN:'Window open',
+  WAITING_CARRIER:'Awaiting carrier', NEED_ADDRESS:'Checking address', BOOKING_UNCERTAIN:'Booking unconfirmed',
+  CONFIRMED_AWAITING_NOTICE:'Notice pending', NEEDS_SLOT_CHOICE:'Awaiting choice', NEEDS_CLARIFICATION:'Clarifying',
+  SLOT_CHANGED:'Times changed', AWAITING_REPLY:'Awaiting reply'
+};
+let current = cases.find(item => item.id === 'P101');
 let index = 0;
 let playing = false;
 let timer = null;
@@ -41,9 +37,6 @@ function icon(name) {
 function buttonContent(target, text, glyph, before = false) {
   const label = document.createTextNode(text);
   target.replaceChildren(...(before ? [icon(glyph),label] : [label,icon(glyph)]));
-}
-function displayTime(value) {
-  return time.format(new Date(value));
 }
 function displayFacts(facts) {
   const list = element('dl','facts');
@@ -77,145 +70,167 @@ function messageBody(step, turn) {
   body.append(grid);
   return body;
 }
-function renderScene(step, turn) {
-  const scene = get('scene');
-  scene.dataset.kind = step.kind;
-  const [glyph, sender, target] = actors[step.kind];
-  const row = element('div','actor-row');
-  const avatar = element('span','actor-icon');
+function stamp(at) {
+  const label = element('time',null,clock.format(new Date(at)));
+  label.dateTime = at;
+  label.title = date.format(new Date(at))+' · '+report.timezone;
+  return label;
+}
+function inConversation(step) {
+  return step.kind === 'shopper' || step.kind === 'agent';
+}
+function chatEntry(step,turn) {
+  const outgoing = step.kind === 'agent';
+  const chat = element('div','chat '+(outgoing ? 'out' : 'in'));
+  const [glyph,role] = actors[step.kind];
+  const anna = current.id === 'P101' && step.kind === 'shopper';
+  const who = anna ? 'Anna' : role;
+  const avatar = element('span','avatar');
   avatar.append(icon(glyph));
-  const destination = element('span','destination');
-  destination.append(icon('arrow'),step.destination || (step.kind === 'support' ? turn.owner : target));
-  row.append(avatar,element('span','actor-title',sender),destination);
-  const card = element('div','event-card');
-  card.append(row);
-  if (step.text) card.append(messageBody(step,turn));
-  if (step.facts.length) card.append(displayFacts(step.facts));
+  const content = element('div','chat-content');
+  const byline = element('div','byline');
+  byline.append(element('strong',null,who),step.channel === 'link' ? 'Rebooking link' : anna ? 'Shopper email' : 'Email', stamp(step.at));
+  const bubble = messageBody(step,turn);
+  bubble.className = 'bubble';
+  content.append(byline,bubble);
   if (step.receipt) {
-    const receipt = element('div','receipt');
-    receipt.append(icon('check'),'Delivery receipt ' + step.receipt);
-    card.append(receipt);
+    const receipt = element('span','receipt');
+    receipt.append(icon('check'),'Delivered');
+    receipt.title = step.receipt;
+    content.append(receipt);
   }
-  scene.replaceChildren(card);
-  if (index === current.steps.length-1) {
+  chat.append(avatar,content);
+  return chat;
+}
+function actionEntry(step) {
+  const block = element('div','action');
+  block.dataset.kind = step.kind;
+  block.dataset.channel = step.channel;
+  const [glyph,actor] = actors[step.kind];
+  const row = element('div','action-header');
+  const avatar = element('span','action-icon');
+  avatar.append(icon(glyph));
+  const author = element('span','action-author',actor);
+  if (step.destination && step.destination !== actor) author.append(icon('arrow'),step.destination);
+  if (step.channel === 'carrier_record' && !step.destination) author.textContent = 'Carrier record';
+  row.append(avatar,author,stamp(step.at));
+  block.append(row,element('h3',null,step.title));
+  if (step.text) block.append(element('p',null,step.text));
+  if (step.facts.length) block.append(displayFacts(step.facts));
+  return block;
+}
+function appendEntry(position,animate) {
+  const step = current.steps[position];
+  const turn = current.turns[step.turn];
+  const entry = element('li',animate ? 'entry is-new' : 'entry');
+  entry.dataset.stepIndex = position;
+  entry.dataset.kind = step.kind;
+  entry.dataset.channel = step.channel;
+  const day = date.format(new Date(step.at));
+  if (position === 0 || date.format(new Date(current.steps[position-1].at)) !== day) {
+    entry.append(element('div','date-marker',day));
+  }
+  entry.append(inConversation(step) ? chatEntry(step,turn) : actionEntry(step));
+  if (position === current.steps.length-1 && turn.state === 'RESOLVED' && !turn.collection_scan_observed_at) {
     const outcome = element('p','outcome');
-    const note = turn.state === 'RESOLVED' && !turn.collection_scan_observed_at
-      ? 'Scheduling is resolved. Physical collection still needs a carrier scan.'
-      : turn.next_step;
-    outcome.append(icon('file'), note);
-    scene.append(outcome);
+    outcome.append(icon('box'),'The visit is booked. Collection is still awaiting a carrier scan.');
+    entry.append(outcome);
   }
+  get('feed').append(entry);
 }
-function renderThread() {
-  const steps = current.steps.slice(0,index+1).filter(step => step.kind === 'agent' || step.kind === 'shopper');
-  const thread = get('thread');
-  get('thread-count').textContent = steps.length;
-  thread.replaceChildren();
-  if (!steps.length) thread.append(element('p',null,'There are no shopper messages at this point.'));
-  for (const step of steps) {
-    const selection = step.kind === 'shopper' && current.turns[step.turn].event_source === 'shopper_selection';
-    const who = selection ? 'Shopper · Rebooking link' : step.kind === 'shopper' ? 'Shopper' : 'Pickup agent';
-    const item = element('div','thread-message');
-    item.append(element('strong',null,who + ' · '+displayTime(step.at)),element('p',null,step.text));
-    thread.append(item);
-  }
-}
-function renderRecords(step, turn) {
+function renderRecords() {
   const panel = get('records');
   panel.replaceChildren();
-  const lastForTurn = current.steps[index+1]?.turn !== step.turn;
-  if (!lastForTurn) {
-    panel.append(element('p',null,'The complete record appears at the end of this exchange.'));
+  const step = current.steps[index];
+  const complete = current.steps[index+1]?.turn !== step.turn;
+  const lastTurn = complete ? step.turn : step.turn-1;
+  if (lastTurn < 0) {
+    panel.append(element('p',null,'The tool record will appear when this exchange is complete.'));
     return;
   }
-  panel.append(element('h3',null,'Case history'));
+  const turn = current.turns[lastTurn];
+  panel.append(element('h3',null,'Latest completed exchange · '+clock.format(new Date(turn.at))));
   const list = element('ul');
-  for (const entry of turn.evidence) list.append(element('li',null,entry));
+  for (const fact of turn.evidence) list.append(element('li',null,fact));
   panel.append(list,element('h3',null,'Tool calls'));
-  if (!turn.tool_calls.length) panel.append(element('p',null,'No tools were called during this exchange.'));
   for (const call of turn.tool_calls) {
     const detail = element('details');
     detail.append(element('summary',null,call.tool),element('pre',null,JSON.stringify(call,null,2)));
     panel.append(detail);
   }
+  if (!turn.tool_calls.length) panel.append(element('p',null,'No tools were called in this exchange.'));
 }
-function makeTimeline() {
-  const timeline = get('timeline');
-  const jump = get('jump');
-  timeline.replaceChildren();
-  jump.replaceChildren();
-  current.steps.forEach((step,i) => {
-    const button = element('button','timeline-step');
-    button.type = 'button';
-    button.append(element('span','pin'), element('span',null,step.title));
-    button.addEventListener('click',() => moveTo(i));
-    timeline.append(button);
-    const option = element('option',null,(i+1) + ' · ' + step.title);
-    option.value = i;
-    jump.append(option);
-  });
-}
-function render() {
+function caseStatus() {
   const step = current.steps[index];
-  const turn = current.turns[step.turn];
-  get('step-counter').textContent = 'Step ' + (index+1) + ' of ' + current.steps.length;
-  get('step-heading').textContent = step.title;
-  get('stage-time').replaceChildren(icon('clock'),displayTime(step.at));
-  get('stage-time').title = 'Local time · '+report.timezone;
-  get('jump').value = String(index);
-  Array.from(get('timeline').children).forEach((button,i) => {
-    if (i === index) button.setAttribute('aria-current','step');
-    else button.removeAttribute('aria-current');
-    button.classList.toggle('done',i<index);
-    button.firstChild.replaceChildren(i<index ? icon('check') : String(i+1));
-  });
+  if (step.channel === 'carrier_response') return 'Carrier confirmed';
+  if (step.title === 'Booking still unconfirmed') return 'Booking unconfirmed';
+  const complete = current.steps[index+1]?.turn !== step.turn;
+  const turn = current.turns[complete ? step.turn : step.turn-1];
+  if (!turn) return 'Open';
+  if (turn.collection_scan_observed_at && turn.state === 'RESOLVED') return 'Parcel collected';
+  return stateLabels[turn.state] || 'In progress';
+}
+function render(scroll=true,animate=true) {
+  const feed = get('feed');
+  while (feed.children.length > index+1) feed.lastElementChild.remove();
+  while (feed.children.length < index+1) appendEntry(feed.children.length,animate);
+  if (scroll) {
+    const viewport = get('transcript');
+    const last = feed.lastElementChild;
+    const offset = last.getBoundingClientRect().top-viewport.getBoundingClientRect().top+viewport.scrollTop;
+    viewport.scrollTop = last.offsetHeight > viewport.clientHeight-20 ? offset-10 : viewport.scrollHeight;
+  }
+  get('progress-label').textContent = (index+1)+' of '+current.steps.length+' events';
+  get('progress').max = current.steps.length;
+  get('progress').value = index+1;
   get('back').disabled = index === 0;
   const end = index === current.steps.length-1;
-  buttonContent(get('next'),end ? 'Restart' : 'Next step',end ? 'return' : 'arrow');
-  renderScene(step,turn);
-  renderThread();
-  renderRecords(step,turn);
+  buttonContent(get('next'),end ? 'Replay' : 'Next event',end ? 'return' : 'arrow');
+  const status = caseStatus();
+  const badge = get('case-status');
+  badge.textContent = status;
+  badge.dataset.state = ['Pickup confirmed','Parcel collected','Carrier confirmed'].includes(status) ? 'done' :
+    ['Booking unconfirmed','Awaiting carrier','With the team','Notice pending'].includes(status) ? 'waiting' : 'open';
+  const step = current.steps[index];
+  get('announce').textContent = get('progress-label').textContent+'. '+actors[step.kind][1]+'. '+step.title+'. '+step.text;
+  if (get('details').open) renderRecords();
 }
 function setPlaying(on) {
   clearTimeout(timer);
   playing = on;
-  buttonContent(get('play'),on ? 'Pause' : 'Play',on ? 'pause' : 'play',true);
+  buttonContent(get('play'),on ? 'Pause' : 'Play story',on ? 'pause' : 'play',true);
   get('play').setAttribute('aria-pressed',String(on));
   if (on) schedule();
 }
 function schedule() {
-  const words = current.steps[index].text.split(/\s+/).length;
+  const step = current.steps[index];
+  const words = step.text.split(/\s+/).length + step.facts.length*3;
   timer = setTimeout(() => {
     index++;
     render();
     if (index === current.steps.length-1) setPlaying(false);
     else schedule();
-  },Math.min(12500,Math.max(4500,2200+words*225)));
+  },Math.min(12500,Math.max(3200,1400+words*205)));
 }
 function moveTo(position) {
   if (position < 0 || position >= current.steps.length) return;
   setPlaying(false);
   index = position;
   render();
-  const stage = document.querySelector('.stage');
-  if (stage.getBoundingClientRect().top < -55) stage.scrollIntoView({block:'start'});
 }
-function selectCase(item) {
+function selectCase(item,opening=false) {
   setPlaying(false);
   current = item;
-  index = 0;
-  const story = stories[item.id];
-  get('case-title').textContent = story ? story[0] : item.label;
-  get('intro').textContent = story ? story[1] : '';
-  get('intro').hidden = !story;
-  get('timeline-count').textContent = item.steps.length + ' steps';
-  document.querySelectorAll('[data-route]').forEach(btn => {
-    btn.setAttribute('aria-pressed',String(btn.dataset.route === item.id));
-  });
+  index = opening ? Math.min(2,item.steps.length-1) : 0;
+  get('feed').replaceChildren();
+  get('case-title').textContent = item.id === 'P101' ? 'Anna’s return pickup' : item.label;
+  get('intro-copy').textContent = item.id === 'P101'
+    ? 'A missed return pickup, from the shopper’s first email to the carrier’s booking confirmation.'
+    : 'Follow the shopper’s messages, agent actions and carrier records in the order they happen.';
   get('details').open = false;
-  get('thread-panel').open = false;
-  makeTimeline();
-  render();
+  get('records').replaceChildren();
+  render(false,false);
+  get('transcript').scrollTop = 0;
 }
 function renderLibrary() {
   const query = get('search').value.trim().toLowerCase();
@@ -242,13 +257,17 @@ function renderLibrary() {
 }
 get('next').addEventListener('click',() => moveTo((index+1)%current.steps.length));
 get('back').addEventListener('click',() => moveTo(index-1));
-get('jump').addEventListener('change',event => moveTo(Number(event.target.value)));
+get('details').addEventListener('toggle',() => {
+  if (get('details').open) {setPlaying(false); renderRecords();}
+});
+get('transcript').addEventListener('wheel',() => {if (playing) setPlaying(false);},{passive:true});
+get('transcript').addEventListener('touchstart',() => {if (playing) setPlaying(false);},{passive:true});
+get('transcript').addEventListener('keydown',event => {
+  if (['PageUp','PageDown','ArrowUp','ArrowDown','Home','End'].includes(event.key) && playing) setPlaying(false);
+});
 get('play').addEventListener('click',() => {
   if (!playing && index === current.steps.length-1) moveTo(0);
   setPlaying(!playing);
-});
-document.querySelectorAll('[data-route]').forEach(button => {
-  button.addEventListener('click',() => selectCase(cases.find(item => item.id === button.dataset.route)));
 });
 get('browse').addEventListener('click',() => {
   setPlaying(false);
@@ -266,4 +285,4 @@ get('library').addEventListener('keydown',event => {
 },true);
 get('search').addEventListener('input',renderLibrary);
 document.addEventListener('visibilitychange',() => {if (document.hidden) setPlaying(false);});
-selectCase(current);
+selectCase(current,true);

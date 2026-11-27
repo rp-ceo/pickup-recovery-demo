@@ -4,7 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Missed pickup recovery · Interactive demo</title>
+<meta name="referrer" content="no-referrer">
+<script>if (location.protocol === 'https:') document.documentElement.classList.add('web-fonts');</script>
+<title>Missed pickup · Return conversation</title>
 <style>__REPLAY_CSS__</style>
 </head>
 <body>
@@ -28,53 +30,47 @@
 <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5v14M15.5 5v14"/></symbol>
 <symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12 5 5 10-10"/></symbol>
 </defs></svg>
-<header class="mast">
-  <div class="mast-inner">
-    <a class="wordmark" href="#walkthrough"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-return"/></svg></span>Pickup recovery</a>
+<div class="shell">
+  <header class="mast">
+    <a class="wordmark" href="#conversation"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-return"/></svg></span>Return operations</a>
     <button id="browse" type="button" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>Browse scenarios</button>
-  </div>
-</header>
-<main class="container" id="walkthrough">
-  <section class="hero" aria-labelledby="case-title">
-    <div class="hero-copy">
-      <div class="demo-label"><span></span>Simulated return</div>
-      <h1 id="case-title">The courier missed the pickup.</h1>
-      <p id="intro">The parcel is still with the shopper. Follow the carrier alert through to a new pickup time.</p>
+  </header>
+  <main>
+    <div class="intro">
+      <h1>Missed <em>pickup</em></h1>
+      <p id="intro-copy">A missed return pickup, from the shopper’s first email to the carrier’s booking confirmation.</p>
     </div>
-    <div class="parcel-scene" aria-hidden="true">
-      <div class="route-line"></div><div class="parcel"><div class="face top-face"></div><div class="face right-face"></div><div class="face front-face"></div><div class="tape top-tape"></div><div class="tape front-tape"></div><div class="parcel-label"><i></i><i></i><b></b></div></div>
-      <span class="return-stamp"><svg class="icon"><use href="#i-return"/></svg></span>
-    </div>
-  </section>
-  <nav class="routes" aria-label="Featured starting points">
-    <span class="route-label">Start with</span>
-    <button type="button" data-route="P118"><svg class="icon" aria-hidden="true"><use href="#i-truck"/></svg>Carrier alert</button>
-    <button type="button" data-route="P102"><svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>Shopper email</button>
-  </nav>
-  <div class="workspace">
-    <aside class="rail" aria-label="Case timeline">
-      <div class="rail-head"><h2>Timeline</h2><span id="timeline-count"></span></div>
-      <nav id="timeline" aria-label="Select a step"></nav>
-      <div class="mobile-jump"><label for="jump">Timeline</label><select id="jump"></select></div>
-    </aside>
-    <div class="story">
-      <section class="stage" aria-labelledby="step-heading">
-        <div class="stage-head"><span id="step-counter"></span><span id="stage-time"></span></div>
-        <div class="stage-content">
-          <h2 id="step-heading" aria-live="polite" aria-atomic="true"></h2>
-          <div id="scene"></div>
+    <section class="window" id="conversation" aria-labelledby="case-title">
+      <header class="window-head">
+        <div class="window-identity">
+          <span class="case-mark"><svg class="icon" aria-hidden="true"><use href="#i-box"/></svg></span>
+          <div><p class="case-type">Simulated return</p><h2 id="case-title">Return pickup conversation</h2></div>
         </div>
-        <nav class="playback" aria-label="Walkthrough controls">
-          <button id="play" type="button" aria-pressed="false"></button>
-          <div class="advance"><button id="back" type="button" aria-label="Previous step"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></button><button id="next" type="button"></button></div>
-        </nav>
-      </section>
-      <details class="technical" id="thread-panel"><summary><span><svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>Shopper conversation <span id="thread-count"></span></span><svg class="icon chevron" aria-hidden="true"><use href="#i-down"/></svg></summary><div class="technical-body" id="thread"></div></details>
-      <details class="technical" id="details"><summary><span><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>Underlying records</span><svg class="icon chevron" aria-hidden="true"><use href="#i-down"/></svg></summary><div class="technical-body" id="records"></div></details>
-    </div>
-  </div>
-  <footer><span>Roman Petrov</span><details id="about"><summary>About this demo</summary><p>The walkthrough replays fictional returns using a simulated carrier and clock. Booking confirmation resolves scheduling. Physical collection needs a separate carrier scan.</p><p>The simulator handles email replies with rules and labelled examples. Its optional local model can suggest an intent. The same booking checks apply either way.</p></details></footer>
-</main>
+        <span id="case-status" class="case-status">Open</span>
+      </header>
+      <div class="transcript" id="transcript" tabindex="0" role="region" aria-label="Conversation and case activity">
+        <ol id="feed"></ol>
+      </div>
+      <nav class="controls" aria-label="Story playback">
+        <div class="progress-group">
+          <span id="progress-label"></span>
+          <progress id="progress" aria-label="Story progress"></progress>
+        </div>
+        <div class="buttons">
+          <button id="back" type="button" class="back" aria-label="Previous event"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></button>
+          <button id="play" type="button" class="play" aria-pressed="false"></button>
+          <button id="next" type="button" class="next"></button>
+        </div>
+      </nav>
+      <p id="announce" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+    </section>
+    <details class="records" id="details">
+      <summary><span><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>Case records</span><svg class="icon" aria-hidden="true"><use href="#i-down"/></svg></summary>
+      <div id="records"></div>
+    </details>
+  </main>
+  <footer><span>Roman Petrov</span><details id="about"><summary>About this demo</summary><p>Messages, bookings and times come from a simulated return. A confirmed appointment resolves scheduling. Physical collection needs a separate carrier scan.</p><p>Booking checks run in code. The Python simulator also supports an optional local language model for ambiguous replies.</p></details></footer>
+</div>
 <dialog id="library" aria-labelledby="library-title">
   <div class="dialog-head"><div><h2 id="library-title">Browse scenarios</h2><p id="library-count"></p></div><button id="close-library" class="icon-button" type="button" aria-label="Close scenarios"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div>
   <label class="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input id="search" type="search" aria-label="Find a scenario" placeholder="Search by scenario or case ID"></label>
