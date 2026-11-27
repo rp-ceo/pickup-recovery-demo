@@ -2,7 +2,7 @@
 
 The shopper still has the parcel and has to ask the store what to do. After a verified miss, send the shopper new pickup options before they need to contact support. An email reply or a link can select an eligible replacement. If the carrier cannot confirm the visit, keep the request open and tell the shopper who will check it.
 
-[Open the pickup replay in your browser](https://rp-ceo.github.io/pickup-recovery-demo/review/Pickup_Operations.html). For offline use, [download the demo and source](https://github.com/rp-ceo/pickup-recovery-demo/archive/refs/heads/main.zip), extract the ZIP and open `review/Pickup_Operations.html`. Start with the carrier alert. The other two featured cases show an unclear email and a lost booking reply. All orders, appointments and messages in the demo are fictional.
+[Open the pickup replay in your browser](https://rp-ceo.github.io/pickup-recovery-demo/review/Pickup_Operations.html). For offline use, [download the demo and source](https://github.com/rp-ceo/pickup-recovery-demo/archive/refs/heads/main.zip), extract the ZIP and open `review/Pickup_Operations.html`. Start with **Carrier alert** to follow a missed pickup through rebooking, or **Shopper email** to see what happens while the carrier is silent. Step through the timeline or press Play. The shopper conversation shows only the messages up to that step. Browse scenarios to explore all 34 cases. All orders, appointments and messages in the demo are fictional.
 
 ## What changes for the shopper
 

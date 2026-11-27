@@ -4,383 +4,83 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light">
-<title>Pickup recovery · Missed pickup recovery</title>
-<style>
-@font-face {
-  font-family: "Pickup Display";
-  src: local("Marr Sans Cond Web Semibold"), local("MarrSansCondensed-Semibold"),
-       local("Marr Sans Condensed Semibold"), local("Arial Narrow Bold");
-  font-weight: 600;
-}
-@font-face {
-  font-family: "Pickup Display";
-  src: local("Marr Sans Cond Web Semibold Italic"), local("MarrSansCondensed-SemiboldItalic"),
-       local("Marr Sans Condensed Semibold Italic"), local("Arial Narrow Bold Italic");
-  font-weight: 600;
-  font-style: italic;
-}
-:root {
-  --navy: #000d1f;
-  --blue: #1790ff;
-  --ice: #a2eeff;
-  --slate: #3c516e;
-  --panel: #172840;
-  --paper: #f6f6f6;
-  --white: #fff;
-  --line: #d5dce4;
-  --round: 20px;
-  --gutter: clamp(18px, 3.3vw, 60px);
-  --display: "Pickup Display", "Marr Sans Cond Web", "Marr Sans Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-  --body: "Roobert", "Roobert GX", "Helvetica Neue", Arial, sans-serif;
-  font: 16px/1.45 var(--body);
-  color: var(--white);
-  background: var(--navy);
-}
-* { box-sizing: border-box; }
-body, h1, h2, p { margin: 0; }
-body { min-height: 100vh; }
-button, select { font: inherit; }
-button { cursor: pointer; }
-button:focus-visible, summary:focus-visible, select:focus-visible {
-  outline: 3px solid #0072d0;
-  outline-offset: 3px;
-}
-.top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  max-width: 1600px;
-  margin: auto;
-  padding: 18px var(--gutter);
-  border-bottom: 1px solid var(--panel);
-}
-.brand, .caption, .eyebrow, .step-status, .nav-button, .side-title, .status-note {
-  font-family: var(--display);
-  font-weight: 600;
-  text-transform: uppercase;
-}
-.brand { font-size: 22px; letter-spacing: -.025em; line-height: 1; }
-.brand em { color: var(--blue); }
-.status-note { color: var(--ice); letter-spacing: .025em; font-size: 14px; text-align: right; }
-.layout {
-  display: grid;
-  grid-template-columns: clamp(215px, 20vw, 298px) minmax(0, 1fr);
-  gap: clamp(24px, 4.2vw, 82px);
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 30px var(--gutter) 36px;
-}
-.sidebar { align-self: start; }
-.side-title {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 3px 7px 12px;
-  font-size: 17px;
-  color: var(--ice);
-  letter-spacing: .025em;
-}
-#count { color: #bdc9d8; font: 13px var(--body); }
-.case-list { border-top: 1px solid var(--panel); }
-.more-cases { margin-top: 16px; }
-.more-cases > summary { color: var(--ice); font-weight: 600; }
-.more-cases > summary::before { color: var(--ice); }
-.family { color: var(--ice); font: 600 14px var(--display); margin: 19px 7px 4px; }
-.case-button {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: baseline;
-  gap: 7px;
-  padding: 10px 7px;
-  border: 0;
-  border-bottom: 1px solid var(--panel);
-  background: transparent;
-  color: #d5dce4;
-  text-align: left;
-  line-height: 1.3;
-  font-size: 14px;
-}
-.case-button:hover { background: var(--panel); color: white; }
-.case-button[aria-current="true"] {
-  color: var(--white);
-  background: var(--panel);
-  border-bottom-color: var(--panel);
-  box-shadow: inset 2px 0 var(--blue);
-}
-#intro { color: #e0e8f0; max-width: 1600px; margin: auto; padding: 18px var(--gutter) 0; font-size: 17px; }
-.scope { margin-top: 14px; color: #d5dce4; font-size: 14px; }
-.scope summary { display: inline-flex; }
-.scope p { padding: 6px 0; max-width: 72ch; }
-.scope a { color: var(--ice); }
-main { min-width: 0; }
-header { padding: 2px 0 18px; }
-.eyebrow { font-size: 14px; color: var(--ice); letter-spacing: .04em; margin-bottom: 8px; }
-h1, .section { font-family: var(--display); font-weight: 600; }
-h1 {
-  max-width: 21ch;
-  font-size: clamp(42px, 5.15vw, 78px);
-  letter-spacing: -.04em;
-  line-height: .96;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-.replay-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.step-status { margin-right: auto; color: #c9d5e1; font-size: 14px; letter-spacing: .02em; }
-.nav-button {
-  border: 1px solid var(--blue);
-  border-radius: 999px;
-  background: var(--blue);
-  color: var(--navy);
-  line-height: 1;
-  padding: 10px 17px;
-  font-size: 15px;
-}
-#previous { border-color: #6f8197; background: transparent; color: white; }
-.nav-button:enabled:hover { background: var(--ice); border-color: var(--ice); color: var(--navy); }
-#previous:enabled:hover { background: var(--panel); border-color: var(--ice); }
-.nav-button:disabled, #previous:disabled { cursor: default; color: #a6b5c7; background: transparent; border-color: #405166; }
-.panel {
-  margin-top: 14px;
-  padding: clamp(18px, 2vw, 30px);
-  border-radius: var(--round);
-  background: var(--white);
-  color: var(--navy);
-}
-.state-strip {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
-  border-bottom: 1px solid var(--line); padding-bottom: 14px;
-}
-.state {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-weight: 600; font-size: 14px; color: var(--navy);
-}
-.state::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
-.state.human::before { background: var(--slate); }
-.state.attention::before { background: var(--white); border: 2px solid var(--slate); }
-.state.success::before { background: var(--blue); box-shadow: 0 0 0 3px #d9f6ff; }
-.time, .meta { margin-left: auto; color: var(--slate); font-size: 12px; font-variant-numeric: tabular-nums; }
-.caption { color: var(--slate); font-size: 14px; line-height: 1.1; letter-spacing: .025em; margin-bottom: 7px; }
-.conversation {
-  display: grid; grid-template-columns: minmax(0, .88fr) minmax(0, 1.25fr); gap: 24px; padding: 22px 0;
-}
-.conversation p { font-size: clamp(17px, 1.35vw, 21px); line-height: 1.38; overflow-wrap: anywhere; }
-.decision {
-  display: grid; grid-template-columns: minmax(120px, .85fr) minmax(0, 1.3fr); gap: 16px;
-  background: #e6f8ff; padding: 16px 18px; border-radius: 12px;
-}
-.decision p { font-size: 16px; line-height: 1.4; }
-.section { margin-bottom: 12px; font-size: 29px; letter-spacing: -.025em; line-height: 1; text-transform: uppercase; }
-.evidence { padding: 0; margin: 0; list-style: none; }
-.evidence li, details { border-top: 1px solid var(--line); }
-.evidence li { padding: 8px 0; font-size: 14px; overflow-wrap: anywhere; }
-.evidence li:last-child { padding-bottom: 0; }
-details summary {
-  display: flex; align-items: center; gap: 10px; padding: 10px 0; list-style: none; cursor: pointer; font-size: 14px;
-}
-summary::-webkit-details-marker { display: none; }
-summary::before { content: "+"; width: 15px; color: var(--slate); font-weight: 650; }
-details[open] summary::before { content: "−"; }
-pre {
-  margin: 0 0 10px; padding: 12px 14px; border-radius: 8px;
-  background: var(--paper); color: var(--navy); white-space: pre-wrap; overflow-wrap: anywhere;
-  font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
-}
-#mobile-case { display: none; }
-.empty { color: var(--slate); font-size: 14px; }
-footer { margin-top: 19px; color: #b8c5d2; font-size: 13px; }
-@media (max-width: 820px) {
-  .layout { grid-template-columns: minmax(0, 1fr); gap: 22px; padding-top: 16px; }
-  .case-list, .side-title { display: none; }
-  #mobile-case {
-    display: block; width: 100%; padding: 9px 11px; border: 1px solid #6f8197; border-radius: 9px;
-    background: var(--panel); color: white; font-size: 15px;
-  }
-  h1 { max-width: 23ch; }
-}
-@media (max-width: 560px) {
-  .top { padding-top: 15px; padding-bottom: 15px; }
-  .brand { font-size: 20px; }
-  .status-note { font-size: 12px; max-width: 20ch; line-height: 1.1; }
-  .nav-button { padding: 9px 12px; font-size: 14px; }
-  .conversation, .decision { grid-template-columns: 1fr; gap: 16px; }
-  .conversation { padding: 17px 0; }
-  .panel { margin-top: 10px; border-radius: 15px; }
-  .time { margin-left: 0; }
-  .meta { font-size: 10px; }
-  .section { font-size: 25px; }
-}
-</style>
+<title>Missed pickup recovery · Interactive demo</title>
+<style>__REPLAY_CSS__</style>
 </head>
 <body>
-<div class="top">
-  <div class="brand">Pickup <em>recovery</em></div>
-  <div class="status-note">Offline replay · Simulated carrier</div>
-</div>
-<p id="intro">When a courier misses a return pickup, the shopper needs a new time or a clear update from Support.</p>
-<div class="layout">
-  <aside class="sidebar" aria-label="Case list">
-    <h2 class="side-title">Pickup cases <span id="count"></span></h2>
-    <div class="case-list">
-      <div id="featured-cases"></div>
-      <details class="more-cases" id="more-cases"><summary>Other scenarios</summary><div id="case-list"></div></details>
+<svg class="sprites" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs>
+<symbol id="i-return" viewBox="0 0 24 24"><path d="M8 4 3.5 8.5 8 13M4 8.5h10a6 6 0 0 1 0 12H9"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="m3.5 7.5 8.5-5 8.5 5v9L12 21.5l-8.5-5zM3.5 7.5l8.5 5 8.5-5M12 12.5v9M8 5l8.5 5"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><path d="M2 5.5h12v11H8m-3 0H2v-11Zm12 4h4l3 4v3h-2m-4 0h-1"/><circle cx="6.5" cy="17.2" r="2.2"/><circle cx="18.5" cy="17.2" r="2.2"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="2.8"/><path d="m4 6.5 8 6 8-6"/></symbol>
+<symbol id="i-agent" viewBox="0 0 24 24"><rect x="2.5" y="8" width="6" height="7" rx="1.5"/><rect x="15.5" y="3" width="6" height="6" rx="1.5"/><rect x="15.5" y="15" width="6" height="6" rx="1.5"/><path d="M9 11.5h3M12 11.5V6h3M12 11.5V18h3"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.7"/><path d="M4.5 20a7.5 6 0 0 1 15 0"/></symbol>
+<symbol id="i-headset" viewBox="0 0 24 24"><path d="M4 13v-2a8 8 0 0 1 16 0v5a5 5 0 0 1-5 5h-2"/><rect x="2" y="11" width="4.5" height="7" rx="2"/><rect x="17.5" y="11" width="4.5" height="7" rx="2"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6.5v6l4 2.5"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2.5h8l4.5 4.5v14.5H6zM14 2.5v5h4.5M9 12h6M9 16h6"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6.5-6.5L19 12l-6.5 6.5"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7z"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><path d="M8.5 5v14M15.5 5v14"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m4.5 12 5 5 10-10"/></symbol>
+</defs></svg>
+<header class="mast">
+  <div class="mast-inner">
+    <a class="wordmark" href="#walkthrough"><span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-return"/></svg></span>Pickup recovery</a>
+    <button id="browse" type="button" aria-haspopup="dialog"><svg class="icon" aria-hidden="true"><use href="#i-grid"/></svg>Browse scenarios</button>
+  </div>
+</header>
+<main class="container" id="walkthrough">
+  <section class="hero" aria-labelledby="case-title">
+    <div class="hero-copy">
+      <div class="demo-label"><span></span>Simulated return</div>
+      <h1 id="case-title">The courier missed the pickup.</h1>
+      <p id="intro">The parcel is still with the shopper. Follow the carrier alert through to a new pickup time.</p>
     </div>
-    <select id="mobile-case" aria-label="Choose a pickup case"></select>
-  </aside>
-  <main>
-    <header><p class="eyebrow" id="case-id"></p><h1 id="case-title"></h1></header>
-    <nav class="replay-nav" aria-label="Replay steps">
-      <span class="step-status" id="step-status" aria-live="polite"></span>
-      <button class="nav-button" id="previous" type="button">← Previous</button>
-      <button class="nav-button" id="next" type="button">Next step →</button>
-    </nav>
-    <section class="panel" aria-label="Pickup timeline">
-      <div class="state-strip"><span class="state" id="state"></span><span class="time" id="turn-time"></span></div>
-      <div class="conversation">
-        <div><h2 class="caption" id="event-label">Incoming event</h2><p id="event"></p></div>
-        <div><h2 class="caption" id="reply-label">Agent response</h2><p id="reply"></p></div>
-      </div>
-      <div class="decision">
-        <div><h2 class="caption">Who owns it</h2><p id="owner"></p></div>
-        <div><h2 class="caption">What happens next</h2><p id="decision"></p></div>
-      </div>
-      <p id="delivery" hidden></p>
-    </section>
-    <section class="panel"><h2 class="section">Case history</h2><ul class="evidence" id="evidence"></ul></section>
-    <section class="panel"><h2 class="section">Tool calls</h2><div id="calls"></div></section>
-    <details class="scope"><summary>What the replay measures</summary>
-      <p id="coverage"></p>
-      <p>The examples include unusual failures on purpose. Times advance on a simulated clock. A production pilot would measure actual handoffs, collection scans and missed update deadlines.</p>
-      <p>The first pilot sends a rebooking link after a verified miss. A shopper who writes back can ask about the times or choose by email. An unclear preference keeps the available choices open. A reported address or custody problem needs verification. This replay uses rules and example matching. In the command-line demo, an optional local model classifies replies those rules leave unresolved. The booking checks are the same in both modes.</p>
-      <p>REVER documents preferred pickup ranges. Dates and availability here come from a simulated carrier. An unanswered booking goes to Support unless a carrier specifically supports checking that attempt. <a href="https://docs.itsrever.com/apis/admin/logistics/createpickup">CreatePickup API</a></p>
-    </details>
-    <footer>Roman Petrov · Missed pickup recovery</footer>
-  </main>
-</div>
-<noscript>Open this replay in a browser with JavaScript enabled. You can also run each case from the command line.</noscript>
+    <div class="parcel-scene" aria-hidden="true">
+      <div class="route-line"></div><div class="parcel"><div class="face top-face"></div><div class="face right-face"></div><div class="face front-face"></div><div class="tape top-tape"></div><div class="tape front-tape"></div><div class="parcel-label"><i></i><i></i><b></b></div></div>
+      <span class="return-stamp"><svg class="icon"><use href="#i-return"/></svg></span>
+    </div>
+  </section>
+  <nav class="routes" aria-label="Featured starting points">
+    <span class="route-label">Start with</span>
+    <button type="button" data-route="P118"><svg class="icon" aria-hidden="true"><use href="#i-truck"/></svg>Carrier alert</button>
+    <button type="button" data-route="P102"><svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>Shopper email</button>
+  </nav>
+  <div class="workspace">
+    <aside class="rail" aria-label="Case timeline">
+      <div class="rail-head"><h2>Timeline</h2><span id="timeline-count"></span></div>
+      <nav id="timeline" aria-label="Select a step"></nav>
+      <div class="mobile-jump"><label for="jump">Timeline</label><select id="jump"></select></div>
+    </aside>
+    <div class="story">
+      <section class="stage" aria-labelledby="step-heading">
+        <div class="stage-head"><span id="step-counter"></span><span id="stage-time"></span></div>
+        <div class="stage-content">
+          <h2 id="step-heading" aria-live="polite" aria-atomic="true"></h2>
+          <div id="scene"></div>
+        </div>
+        <nav class="playback" aria-label="Walkthrough controls">
+          <button id="play" type="button" aria-pressed="false"></button>
+          <div class="advance"><button id="back" type="button" aria-label="Previous step"><svg class="icon" aria-hidden="true"><use href="#i-back"/></svg></button><button id="next" type="button"></button></div>
+        </nav>
+      </section>
+      <details class="technical" id="thread-panel"><summary><span><svg class="icon" aria-hidden="true"><use href="#i-mail"/></svg>Shopper conversation <span id="thread-count"></span></span><svg class="icon chevron" aria-hidden="true"><use href="#i-down"/></svg></summary><div class="technical-body" id="thread"></div></details>
+      <details class="technical" id="details"><summary><span><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>Underlying records</span><svg class="icon chevron" aria-hidden="true"><use href="#i-down"/></svg></summary><div class="technical-body" id="records"></div></details>
+    </div>
+  </div>
+  <footer><span>Roman Petrov</span><details id="about"><summary>About this demo</summary><p>The walkthrough replays fictional returns using a simulated carrier and clock. Booking confirmation resolves scheduling. Physical collection needs a separate carrier scan.</p><p>The simulator handles email replies with rules and labelled examples. Its optional local model can suggest an intent. The same booking checks apply either way.</p></details></footer>
+</main>
+<dialog id="library" aria-labelledby="library-title">
+  <div class="dialog-head"><div><h2 id="library-title">Browse scenarios</h2><p id="library-count"></p></div><button id="close-library" class="icon-button" type="button" aria-label="Close scenarios"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button></div>
+  <label class="search"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg><input id="search" type="search" aria-label="Find a scenario" placeholder="Search by scenario or case ID"></label>
+  <div id="library-list"></div>
+</dialog>
+<noscript>This interactive replay needs JavaScript. The Python simulator in the source package runs the same cases.</noscript>
 <script id="report" type="application/json">__PICKUP_REPORT_JSON__</script>
-<script>
-'use strict';
-const report = JSON.parse(document.getElementById('report').textContent);
-const cases = report.cases;
-const el = (id) => document.getElementById(id);
-const write = (id, value) => { el(id).textContent = value; };
-const node = (tag, cls, value) => {
-  const out = document.createElement(tag);
-  if (cls) out.className = cls;
-  if (value !== undefined) out.textContent = value;
-  return out;
-};
-const spokenStates = {
-  OFFERED:'Replacement slots offered', RESOLVED:'New pickup confirmed · shopper notified', HUMAN_REVIEW:'Human review',
-  AWAITING_REPLY:'Offer ended · waiting for shopper',
-  WINDOW_OPEN:'Original window has not ended', WAITING_CARRIER:'Waiting for carrier', NEED_ADDRESS:'Address detail needed',
-  BOOKING_UNCERTAIN:'Booking result uncertain', CONFIRMED_AWAITING_NOTICE:'Booking confirmed · notice pending',
-  NEEDS_SLOT_CHOICE:'Shopper choice needed', NEEDS_CLARIFICATION:'Clarification needed', SLOT_CHANGED:'Slot availability changed'
-};
-const eventLabels = {
-  shopper_message: 'Shopper message',
-  shopper_selection: 'Shopper selection',
-  carrier_event: 'Carrier event',
-  timer: 'Scheduled check'
-};
-const caseButtons = [];
-const featured = ['P118', 'P129', 'P107'];
-let activeCase = cases.findIndex(item => item.id === featured[0]);
-let activeTurn = 0;
-const localTime = new Intl.DateTimeFormat('en-GB', {
-  timeZone: report.timezone, day: '2-digit', month: 'short',
-  hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
-});
-function stamp(iso) {
-  return localTime.format(new Date(iso));
-}
-function show() {
-  const item = cases[activeCase];
-  const turn = item.turns[activeTurn];
-  caseButtons.forEach((btn,i) => btn.setAttribute('aria-current',i===activeCase?'true':'false'));
-  el('mobile-case').value = item.id;
-  write('case-id','Fictional pickup · '+item.id); write('case-title',item.label);
-  write('step-status','Step '+(activeTurn+1)+' of '+item.turns.length);
-  el('previous').disabled = activeTurn===0;
-  el('next').disabled = activeTurn===item.turns.length-1;
-  const collected = turn.state === 'RESOLVED' && turn.collection_scan_observed_at;
-  write('state',collected ? 'Carrier reports collection' : (spokenStates[turn.state] || turn.state.replaceAll('_',' ').toLowerCase()));
-  const color = turn.state==='HUMAN_REVIEW'?'human':turn.state==='RESOLVED'?'success':
-                ['WAITING_CARRIER','NEED_ADDRESS','BOOKING_UNCERTAIN','CONFIRMED_AWAITING_NOTICE'].includes(turn.state)?'attention':'';
-  el('state').className = 'state '+color;
-  write('turn-time',stamp(turn.at));
-  write('event-label',eventLabels[turn.event_source] || 'Incoming event');
-  write('reply-label', collected && turn.event_source === 'carrier_event' ? 'Collection record' :
-    turn.state === 'CONFIRMED_AWAITING_NOTICE' ? 'Notification status' : 'Agent response');
-  write('event',turn.event); write('reply',turn.message); write('owner',turn.owner); write('decision',turn.next_step);
-  const callback = turn.tool_calls.find(call => call.tool === 'support.callback_receipt');
-  const offer = turn.tool_calls.find(call => call.tool === 'support.send_pickup_options');
-  const windowUpdate = turn.tool_calls.find(call => call.tool === 'support.send_window_update');
-  const delivery = el('delivery');
-  delivery.hidden = !callback && !offer && !windowUpdate;
-  if (callback) {
-    const receipt = callback.result;
-    const timing = receipt.overdue ? receipt.minutes_late+' minutes late' : 'on time';
-    delivery.textContent = 'Shopper update due '+receipt.due_at.slice(11,16)+' · Delivered '+receipt.delivered_at.slice(11,16)+' ('+timing+').';
-  } else if (offer) {
-    delivery.textContent = offer.result.delivery_receipt ? 'Replacement options delivered · '+offer.result.delivery_receipt : 'Delivery failed · Support owns the next contact.';
-  } else if (windowUpdate) {
-    delivery.textContent = windowUpdate.result.delivery_receipt ? 'The shopper received the update about the original window.' : 'The update could not be delivered. Support will follow up.';
-  }
-  el('evidence').replaceChildren(...turn.evidence.map(fact => node('li','',fact)));
-  const calls = turn.tool_calls.map(call => {
-    const detail=node('details'), summary=node('summary');
-    summary.append(node('span','',call.tool.split('.').pop().replaceAll('_',' ')),node('span','meta',stamp(call.at)));
-    detail.append(summary,node('pre','',JSON.stringify(call,null,2)));
-    return detail;
-  });
-  if (!calls.length) calls.push(node('p','empty','No tool calls recorded for this step.'));
-  el('calls').replaceChildren(...calls);
-}
-function selectCase(index) {
-  activeCase=index;
-  if (!featured.includes(cases[index].id)) el('more-cases').open = true;
-  activeTurn=0;
-  show();
-}
-function addCase(item, list, options) {
-  const index = cases.indexOf(item);
-  const button = node('button','case-button',item.label);
-  button.type = 'button';
-  button.dataset.caseId = item.id;
-  button.addEventListener('click',() => selectCase(index));
-  caseButtons[index] = button;
-  list.append(button);
-  const option = node('option','',item.label);
-  option.value = item.id;
-  options.append(option);
-}
-function optionGroup(label) {
-  const options = node('optgroup');
-  options.label = label;
-  el('mobile-case').append(options);
-  return options;
-}
-const first = optionGroup('Featured cases');
-for (const id of featured) {
-  addCase(cases.find(item => item.id === id), el('featured-cases'), first);
-}
-const rest = cases.filter(item => !featured.includes(item.id));
-for (const group of new Set(rest.map(item => item.group))) {
-  el('case-list').append(node('h3','family',group));
-  const options = optionGroup(group);
-  for (const item of rest.filter(example => example.group === group)) {
-    addCase(item, el('case-list'), options);
-  }
-}
-write('count', cases.length);
-const completed = cases.filter(item => item.autonomous_under_24h).length;
-const staff = cases.filter(item => item.state === 'HUMAN_REVIEW').length;
-write('coverage', cases.length+' fictional cases. '+completed+' finish with a new pickup confirmed within the simulated day. '+staff+' finish with a person. The rest are still open.');
-el('previous').addEventListener('click',()=>{if(activeTurn>0){activeTurn--;show();}});
-el('next').addEventListener('click',()=>{if(activeTurn<cases[activeCase].turns.length-1){activeTurn++;show();}});
-el('mobile-case').addEventListener('change',() => selectCase(cases.findIndex(item => item.id === el('mobile-case').value)));
-show();
-</script></body></html>
+<script>__REPLAY_JS__</script>
+</body></html>
