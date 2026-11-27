@@ -224,9 +224,6 @@ function selectCase(item,opening=false) {
   index = opening ? Math.min(2,item.steps.length-1) : 0;
   get('feed').replaceChildren();
   get('case-title').textContent = item.id === 'P101' ? 'Anna’s return pickup' : item.label;
-  get('intro-copy').textContent = item.id === 'P101'
-    ? 'A missed return pickup, from the shopper’s first email to the carrier’s booking confirmation.'
-    : 'Follow the shopper’s messages, agent actions and carrier records in the order they happen.';
   get('details').open = false;
   get('records').replaceChildren();
   render(false,false);
@@ -248,6 +245,8 @@ function renderLibrary() {
       button.append(element('span',null,item.label),element('span',null,item.id));
       button.addEventListener('click',() => {
         get('library').close();
+        history.replaceState(null, '', '#recovery');
+        showMode('recovery');
         selectCase(item);
       });
       list.append(button);
@@ -285,4 +284,61 @@ get('library').addEventListener('keydown',event => {
 },true);
 get('search').addEventListener('input',renderLibrary);
 document.addEventListener('visibilitychange',() => {if (document.hidden) setPlaying(false);});
+
+function showMode(mode) {
+  setPlaying(false);
+  const before = mode === 'before-visit';
+  get('before-visit').hidden = !before;
+  get('recovery').hidden = before;
+  get('before-link').setAttribute('aria-current', before ? 'page' : 'false');
+  get('recovery-link').setAttribute('aria-current', before ? 'false' : 'page');
+}
+
+function readLocation() {
+  showMode(['#recovery','#conversation'].includes(location.hash) ? 'recovery' : 'before-visit');
+}
+
+for (const link of document.querySelectorAll('a[href="#before-visit"],a[href="#recovery"]')) {
+  link.addEventListener('click', event => {
+    event.preventDefault();
+    if (link.id === 'visit-recovery') selectCase(cases.find(item => item.id === 'P118'));
+    history.replaceState(null, '', link.hash);
+    readLocation();
+    if (link.id === 'visit-recovery') get('recovery-link').focus();
+  });
+}
+window.addEventListener('hashchange', readLocation);
+for (const [key, record] of Object.entries(report.readiness)) {
+  get('visit-example').append(new Option(record.label, key));
+}
+function renderVisit(event) {
+  const record = report.readiness[get('visit-example').value];
+  const decision = event ? record.followup[event] : record.decision;
+  get('visit-stage').textContent = event === 'left' ? 'Driver dispatched' : record.stage;
+  get('visit-address').textContent = event === 'updated' ? record.updated_address : record.address;
+  if (event === 'disputed') get('visit-address').textContent = 'Flag disputed by shopper';
+  get('visit-owner').textContent = decision.action === 'ask' ? 'Message to the shopper' : 'Next action';
+  get('visit-action').textContent = decision.title;
+  get('visit-note').textContent = decision.note;
+  const open = decision.action === 'ask' || decision.action === 'await_detail';
+  get('visit-update').hidden = !open;
+  get('visit-dispute').hidden = !open;
+  get('visit-depart').hidden = !open;
+  get('visit-recheck').hidden = !open;
+  get('visit-reset').hidden = !event;
+  get('visit-recovery').hidden = decision.action !== 'recover';
+  get('visit-choices').hidden = !open && !event && decision.action !== 'recover';
+  if (event && !open) get('visit-reset').focus();
+}
+get('visit-example').addEventListener('change', () => renderVisit());
+get('visit-update').addEventListener('click', () => renderVisit('updated'));
+get('visit-dispute').addEventListener('click', () => renderVisit('disputed'));
+get('visit-depart').addEventListener('click', () => renderVisit('left'));
+get('visit-recheck').addEventListener('click', () => renderVisit('pending'));
+get('visit-reset').addEventListener('click', () => {
+  renderVisit();
+  get('visit-example').focus();
+});
 selectCase(current,true);
+renderVisit();
+readLocation();

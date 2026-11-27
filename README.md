@@ -1,8 +1,18 @@
-# When a courier misses a return pickup
+# Return pickup operations
 
 The shopper still has the parcel and has to ask the store what to do. After a verified miss, send the shopper new pickup options before they need to contact support. An email reply or a link can select an eligible replacement. If the carrier cannot confirm the visit, keep the request open and tell the shopper who will check it.
 
-[Open the pickup replay in your browser](https://rp-ceo.github.io/pickup-recovery-demo/review/Pickup_Operations.html). For offline use, [download the demo and source](https://github.com/rp-ceo/pickup-recovery-demo/archive/refs/heads/main.zip), extract the ZIP and open `review/Pickup_Operations.html`. The opening exchange follows Anna’s missed pickup. Press **Play story** or **Next event** to see her choice, the carrier’s booking record and the agent’s confirmation in the same thread. **Browse scenarios** includes the carrier-first path and cases where the carrier stays silent. All orders, appointments and messages in the demo are fictional.
+[Open the interactive demo](https://rp-ceo.github.io/pickup-recovery-demo/review/Pickup_Operations.html). In **Before the visit**, try a missing building entrance, supply the detail, or let the driver leave first. In **After a missed pickup**, use **Next event** to follow one shopper from their email to booking confirmation. **Browse scenarios** covers other outcomes. For offline use, extract the [source ZIP](https://github.com/rp-ceo/pickup-recovery-demo/archive/refs/heads/main.zip) and open `review/Pickup_Operations.html`.
+
+Both views use fictional records. The browser runs locally with an embedded set of Python decisions. Shopper messages, carrier updates and bookings are simulated. The optional local language model runs in Python.
+
+To write a shopper email and see the model interpret it, open the [local inbox](review/local_inbox/). With the Python requirements installed and Ollama serving `qwen2.5:1.5b`, run `python review/local_inbox/serve.py` from the project folder. Open the address printed in the terminal. On macOS or Linux, use `python3` if needed. On Windows, use `py -3`.
+
+## Before the first visit
+
+Ask only when the merchant flags an access detail needed for this carrier and location. A shopper can supply the detail or dispute the flag. One open request is enough. A house with no apartment requirement gets no prompt. Once the driver has left, the depot must confirm whether changed instructions can reach the driver. A route disruption belongs with Carrier Operations.
+
+The pilot would also allow a shopper to change an inconvenient window before dispatch, subject to carrier availability. The interactive check covers access details and dispatch status. A portal update leaves the visit scheduled; only a carrier collection scan establishes pickup.
 
 ## What changes for the shopper
 
@@ -26,7 +36,7 @@ To measure what the model adds, have Support label unseen, anonymised emails bef
 
 ## REVER and the pilot carrier
 
-A “Pick up failed” event can already open or update a Gorgias ticket for a connected merchant. The merchant would explain the link and email reply in its original pickup confirmation. Contact the shopper proactively only after verifying the miss. [REVER's Gorgias integration](https://docs.itsrever.com/guides/gorgias-integration)
+A “Pick up failed” event can already open or update a Gorgias ticket for a connected merchant. The merchant would explain the link and email reply in its original pickup confirmation. Start recovery outreach after verifying the miss. The separate access check happens before dispatch. [REVER's Gorgias integration](https://docs.itsrever.com/guides/gorgias-integration)
 
 The pickup API accepts preferred ranges of 08:00–12:00, 12:00–16:00 and 16:00–20:00, or no preference. It requires an existing logistics order and a supported provider/carrier. Its public request does not specify a calendar day. A pilot needs a separate agreement or carrier service for date availability and confirmation. Check returned details against the shopper's selection before making a promise. [CreatePickup](https://docs.itsrever.com/apis/admin/logistics/createpickup)
 
@@ -49,6 +59,8 @@ Compare the additional cost of each step with the staff time it releases. Count 
 ## Pilot decision
 
 Start with four weeks of data for one merchant and one carrier. Join scheduled pickups, verified misses, support contacts, staff time, promised updates, carrier invoices and collection scans on the return ID. This gives the home-pickup share, miss rate, contacts per miss and actual fee payer.
+
+To test prevention, assign newly scheduled home returns for the same merchant and carrier to the current booking flow or the pre-visit check. Keep recovery identical. Count carrier-confirmed first-visit collections per 100 originally scheduled home returns. Keep missing scans, later reschedules and handoffs in the denominator. A scan after a failed first visit counts only toward recovery. Track original-window collections and time to collection as checks against delaying visits. For example, 50 additional first-visit collections out of 10,000 amounts to 0.5 percentage points. The actual effect is unknown.
 
 Where feasible, assign comparable returns concurrently to A, B and C. Measure B against A for the proactive email and link, and C against B for the reply workflow. Use the same eligibility rules, carrier terms and measurement window across groups. If volume only supports two groups, test A against B first, then B against C. A before-and-after comparison alone is vulnerable to seasonal changes. Test model assistance separately on the same unseen emails.
 

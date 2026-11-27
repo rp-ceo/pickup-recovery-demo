@@ -10,6 +10,7 @@ from choices import discussing_offered_time, is_acknowledgement
 from email_reply import current_reply
 from intent import read_intent
 from pickup import Case, WAIT, handle
+from readiness import SCENARIOS, example
 
 
 NEXT = {
@@ -143,6 +144,7 @@ def report():
     return {"mode": description,
             "timezone": initial.slot_timezone.key,
             "as_of": initial.now.isoformat(),
+            "readiness": {name: example(name) for name in SCENARIOS},
             "cases": [run_case(case_id, scripted=True) for case_id in initial.cases]}
 
 
@@ -160,8 +162,12 @@ def main():
     parser.add_argument("--advance", type=int, default=0, metavar="MINUTES", help="Simulate a follow-up timer")
     parser.add_argument("--ollama-model", help="Use an already installed local model for message interpretation")
     parser.add_argument("--report", action="store_true", help="Offline-only JSON traces for all mock cases")
+    parser.add_argument("--readiness", choices=SCENARIOS, help="Run a fictional first-visit check")
     parser.add_argument("--json", action="store_true", help="Machine-readable output for one mock case")
     args = parser.parse_args()
+    if args.readiness:
+        print(json.dumps(example(args.readiness), ensure_ascii=False, indent=2))
+        return
     if args.advance < 0:
         parser.error("Advance must be positive or zero.")
     if args.reply_after < 0 or (args.reply_after and args.reply is None and args.choose is None):

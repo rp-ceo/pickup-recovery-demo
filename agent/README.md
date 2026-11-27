@@ -5,6 +5,7 @@ The first argument selects a fictional return record. With no extra arguments th
 Install the time-zone data from the project root first (Windows: `py -3 -m pip install -r requirements.txt`. macOS/Linux: `python3 -m pip install -r requirements.txt`). Then run the following from the agent directory, using `py -3` on Windows.
 
 ```sh
+python3 demo.py --readiness entrance
 python3 demo.py P101 --reply "Thursday works for me"
 python3 demo.py P101 --reply "Please book Thursday" --after-booking "What time is my pickup again?"
 python3 demo.py P101 --reply-after 15 --reply "Thu pls"

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Missed pickup recovery</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Missed pickup recovery</h1>
+      <p>Send a shopper email and watch the agent respond. When the rules need help, a local model interprets the email. Carrier records, bookings and notifications are simulated.</p>
+    </header>
+    <section class="compact">
+      <label for="record">Carrier record</label>
+      <select id="record">
+        <option value="P101">Carrier recorded a missed pickup</option>
+        <option value="P103">Carrier marked the shopper unavailable</option>
+        <option value="P109">Carrier sent an unfamiliar status</option>
+      </select>
+    </section>
+    <div id="thread" aria-live="polite"></div>
+    <section>
+      <form id="form">
+        <label for="email">Shopper email</label>
+        <textarea maxlength="2000" id="email" required placeholder="Write what the shopper would say…"></textarea>
+        <div class="controls">
+          <button id="send" type="submit">Send email</button>
+          <button type="button" class="secondary" id="example">Use example email</button>
+          <button type="button" class="secondary" id="reset" hidden>New case</button>
+        </div>
+        <p id="status" class="note" role="status"></p>
+      </form>
+    </section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>

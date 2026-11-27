@@ -1,0 +1,167 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #07172a;
+  color: #f9fbff;
+  font: 16px/1.48 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+main {
+  margin: auto;
+  max-width: 860px;
+  padding: 36px 20px 70px;
+}
+
+h1 {
+  font-size: clamp(2rem,7vw,3.8rem);
+  line-height: 1.02;
+  letter-spacing: -.055em;
+  margin: .2em 0;
+}
+
+header p {
+  color: #bed0e0;
+  margin: 12px 0 24px;
+}
+
+section {
+  border-radius: 16px;
+  background: #fff;
+  color: #101e33;
+  margin: 16px 0;
+  padding: 19px 23px;
+}
+
+label,strong {
+  font-weight: 650;
+}
+
+select,textarea {
+  font: inherit;
+  width: 100%;
+  margin: 6px 0 10px;
+  padding: 10px;
+  border: 1px solid #b6c8d6;
+  border-radius: 8px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: #095db6;
+  color: white;
+}
+
+button:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.secondary {
+  background: #e9f0f7;
+  color: #213a55;
+}
+
+button:focus-visible,select:focus-visible,textarea:focus-visible {
+  outline: 3px solid #0787ff;
+  outline-offset: 2px;
+}
+
+.controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.note {
+  min-height: 1.5em;
+  color: #355777;
+  margin: 8px 0 0;
+}
+
+.message {
+  padding: 11px 14px;
+  margin: 8px 0;
+  border-radius: 9px;
+  overflow-wrap: anywhere;
+}
+
+.message strong {
+  font-size: .83rem;
+  color: #395672;
+  display: block;
+  margin-bottom: 3px;
+}
+
+.shop {
+  background: #eef2f5;
+}
+
+.model {
+  background: #deefff;
+}
+
+.reply {
+  background: #e9f6f1;
+}
+
+.message p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+details {
+  padding: 8px 3px;
+  font-size: .91rem;
+}
+
+summary {
+  cursor: pointer;
+  color: #344f68;
+}
+
+li {
+  margin: .35em 0;
+  overflow-wrap: anywhere;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 0 0 8px;
+}
+
+.case-state {
+  color: #42586c;
+  font-size: .85rem;
+}
+
+section.compact {
+  background: #edf4fa;
+}
+
+a {
+  color: inherit;
+}
+
+@media (max-width: 540px) {
+  main {
+    padding: 18px 12px;
+  }
+
+  section {
+    padding: 14px;
+  }
+}
