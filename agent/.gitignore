@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+case-traces.json
+.DS_Store

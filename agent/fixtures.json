@@ -1,0 +1,594 @@
+{
+  "clock": "2026-11-24T18:30:00+01:00",
+  "window_end": "2026-11-24T16:00:00+01:00",
+  "slots": {
+    "A": "Wed 25 Nov, 08:00–12:00 CET",
+    "B": "Thu 26 Nov, 12:00–16:00 CET"
+  },
+  "slot_starts": {
+    "A": "2026-11-25T08:00:00+01:00",
+    "B": "2026-11-26T12:00:00+01:00"
+  },
+  "slot_duration_minutes": {
+    "A": 240,
+    "B": 240
+  },
+  "slot_timezone": "Europe/Madrid",
+  "merchant_policies": {
+    "demo-store": {
+      "free_rebooking_approved": true,
+      "max_repeat_eur_cents": 400,
+      "repeat_charge_payer": "merchant"
+    },
+    "unassigned-store": {
+      "free_rebooking_approved": true,
+      "max_repeat_eur_cents": 400,
+      "repeat_charge_payer": null
+    }
+  },
+  "cases": {
+    "P101": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Book a pickup from an email reply",
+      "sample": "I waited all afternoon. Nobody came to collect my return.",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "message": "Thursday works for me!\n\nBest,\nAnna"
+        }
+      ],
+      "group": "Booking and replies"
+    },
+    "P102": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "unknown",
+      "label": "No carrier update",
+      "sample": "My collection window ended. Is the courier still coming?",
+      "replay": [
+        {
+          "after_minutes": 30,
+          "timer": true
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P103": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "customer_unavailable",
+      "label": "Carrier marked shopper unavailable",
+      "sample": "I was home all day and no one rang. Nobody came for the pickup.",
+      "group": "Disputes and handoffs"
+    },
+    "P104": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 2,
+      "label": "Second recorded failure",
+      "sample": "Again, nobody came to pick up my parcel.",
+      "group": "Disputes and handoffs"
+    },
+    "P105": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Compensation request",
+      "sample": "Nobody came. I want compensation for taking the afternoon off.",
+      "group": "Disputes and handoffs"
+    },
+    "P106": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "missing_field": "apartment or entrance detail",
+      "label": "Carrier reports an address issue",
+      "sample": "The courier missed my pickup. What should I do?",
+      "group": "Address and availability"
+    },
+    "P107": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "booking_timeout": true,
+      "label": "The carrier has not confirmed the booking",
+      "sample": "My return wasn't collected. Can I book another pickup?",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P108": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "notice_failure": true,
+      "label": "Booking confirmed but customer notice fails once",
+      "sample": "The courier never came. Can I reschedule the pickup?",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        },
+        {
+          "after_minutes": 1,
+          "timer": true
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P109": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "routing_code_x7",
+      "label": "Unrecognised carrier status",
+      "sample": "Nobody came for the pickup. Can you check?",
+      "group": "Disputes and handoffs"
+    },
+    "P110": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "slots": [],
+      "label": "No available replacement slot",
+      "sample": "My return pickup failed. Can you arrange another collection?",
+      "group": "Address and availability"
+    },
+    "P111": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "scheduled",
+      "missing_field": "building entrance",
+      "window_end": "2026-11-25T16:00:00+01:00",
+      "label": "Address detail flagged by carrier",
+      "sample": "Will the courier be able to find my pickup address?",
+      "initial_event": "The carrier flagged an incomplete address before the window ended.",
+      "group": "Address and availability"
+    },
+    "P112": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "scheduled",
+      "window_end": "2026-11-25T16:00:00+01:00",
+      "label": "Original window ends tomorrow",
+      "sample": "Is the courier still coming to collect my parcel?",
+      "replay": [
+        {
+          "after_minutes": 1320,
+          "timer": true
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P113": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "commercial_exception": true,
+      "label": "Merchant approval required",
+      "sample": "The pickup failed and the shop wants a fee waived.",
+      "group": "Disputes and handoffs"
+    },
+    "P114": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "booking_timeout": true,
+      "label": "Shopper changes the day",
+      "sample": "The courier missed my pickup. Can you check the available times?",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        },
+        {
+          "after_minutes": 1,
+          "message": "Actually, Wednesday doesn't work. Can we do Thursday instead?"
+        }
+      ],
+      "group": "Disputes and handoffs"
+    },
+    "P115": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Shopper reports a second missed visit in Spanish",
+      "sample": "Ya es la segunda vez que no viene nadie. Estoy harto.",
+      "group": "Disputes and handoffs"
+    },
+    "P116": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Shopper asks for a person",
+      "sample": "Can I speak to a human about this failed pickup?",
+      "group": "Disputes and handoffs"
+    },
+    "P117": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "The shopper reports the wrong address",
+      "sample": "Nobody came for the pickup. Can we book another visit?",
+      "replay": [
+        {
+          "after_minutes": 1,
+          "message": "Wait, that address isn’t mine."
+        },
+        {
+          "after_minutes": 1,
+          "select": "A",
+          "offer": 1
+        }
+      ],
+      "group": "Address and availability"
+    },
+    "P118": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "A carrier alert reaches the shopper first",
+      "sample": "Nobody came for the pickup.",
+      "initial_event": "The carrier confirms the first missed pickup.",
+      "replay": [
+        {
+          "after_minutes": 1,
+          "carrier_event": "The carrier repeats its first missed-pickup alert."
+        },
+        {
+          "after_minutes": 3,
+          "message": "Thursday works for me"
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P119": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "unknown",
+      "label": "A collection scan arrives after handoff",
+      "sample": "My pickup window has ended. Is the courier still coming?",
+      "replay": [
+        {
+          "after_minutes": 30,
+          "timer": true
+        },
+        {
+          "after_minutes": 5,
+          "carrier_event": "The carrier reports that the parcel was collected.",
+          "status": "collected"
+        },
+        {
+          "after_minutes": 1,
+          "message": "They collected it. Did you get the scan?"
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P120": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "unknown",
+      "label": "The promised callback runs late",
+      "sample": "My collection window has ended. Is the courier still coming?",
+      "replay": [
+        {
+          "after_minutes": 45,
+          "timer": true,
+          "simulate_delay": true
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P121": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "The replacement offer could not be delivered",
+      "sample": "My return was not collected.",
+      "initial_event": "The carrier confirms the first missed pickup.",
+      "offer_delivery_fails": true,
+      "group": "Carrier updates"
+    },
+    "P122": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "The shopper has left the parcel at the post office",
+      "sample": "It's at the post office now because the driver never came.",
+      "group": "Disputes and handoffs"
+    },
+    "P123": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Address flagged before confirmation",
+      "sample": "The courier missed my pickup.",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        },
+        {
+          "after_minutes": 1,
+          "carrier_event": "The carrier needs the building entrance for the existing visit.",
+          "missing_field": "building entrance"
+        }
+      ],
+      "group": "Address and availability",
+      "notice_failure": true
+    },
+    "P124": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "New windows after address validation",
+      "sample": "The courier missed my pickup. What should I do?",
+      "missing_field": "flat number",
+      "replay": [
+        {
+          "after_minutes": 10,
+          "carrier_event": "The carrier verified the corrected flat number.",
+          "missing_field": null
+        },
+        {
+          "after_minutes": 5,
+          "message": "I prefer the second one."
+        }
+      ],
+      "group": "Booking and replies"
+    },
+    "P125": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "The carrier scans the parcel after rebooking",
+      "sample": "Nobody came to collect my return.",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        },
+        {
+          "after_minutes": 950,
+          "carrier_event": "The collection scan arrives at 10:24. The carrier recorded pickup at 10:19.",
+          "status": "collected",
+          "collected_at": "2026-11-25T10:19:00+01:00"
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P126": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "The carrier withdraws the first window",
+      "sample": "Nobody came for my pickup.",
+      "initial_event": "The carrier reports a missed visit.",
+      "replay": [
+        {
+          "after_minutes": 1,
+          "carrier_event": "The carrier withdraws Wednesday's window. Thursday is still available.",
+          "slots": [
+            "B"
+          ]
+        },
+        {
+          "after_minutes": 1,
+          "select": "B",
+          "offer": 1
+        },
+        {
+          "after_minutes": 1,
+          "select": "B",
+          "offer": 2
+        }
+      ],
+      "group": "Carrier updates"
+    },
+    "P127": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 3,
+      "label": "Collection after a repeat miss goes to Support",
+      "sample": "This is my third missed pickup.",
+      "replay": [
+        {
+          "after_minutes": 960,
+          "carrier_event": "Support still owns this case. The carrier reports collection at 10:20.",
+          "status": "collected",
+          "collected_at": "2026-11-25T10:20:00+01:00"
+        }
+      ],
+      "group": "Disputes and handoffs"
+    },
+    "P128": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "A shopper asks for their booked time",
+      "sample": "Nobody came to collect my return.",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        },
+        {
+          "after_minutes": 1,
+          "message": "What time is my pickup again?"
+        },
+        {
+          "after_minutes": 1,
+          "message": "Got it, thank you!"
+        }
+      ],
+      "group": "Booking and replies"
+    },
+    "P129": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "An unclear reply, then a choice the next morning",
+      "sample": "Nobody came to collect my return.",
+      "replay": [
+        {
+          "after_minutes": 1,
+          "message": "Yes"
+        },
+        {
+          "after_minutes": 899,
+          "message": "Thu pls"
+        }
+      ],
+      "group": "Booking and replies"
+    },
+    "P130": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Change a confirmed booking",
+      "sample": "Nobody came to collect my return.",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        },
+        {
+          "after_minutes": 1,
+          "message": "Actually can you move it to Thursday?"
+        }
+      ],
+      "group": "Booking and replies"
+    },
+    "P131": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "A frustrated shopper",
+      "sample": "This is ridiculous, I took a day off work",
+      "replay": [],
+      "group": "Booking and replies"
+    },
+    "P132": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Optional carrier lookup after a timeout",
+      "sample": "Nobody came to collect my return.",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "select": "A",
+          "offer": 1
+        },
+        {
+          "after_minutes": 1,
+          "timer": true
+        }
+      ],
+      "booking_timeout": true,
+      "attempt_lookup": true,
+      "group": "Carrier updates"
+    },
+    "P133": {
+      "merchant": "demo-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "Reply about a missed pickup in Spanish",
+      "sample": "Nadie vino a recoger mi devolución.",
+      "replay": [
+        {
+          "after_minutes": 4,
+          "message": "Me va bien el jueves."
+        },
+        {
+          "after_minutes": 1,
+          "message": "¡Gracias, nos vemos el jueves!"
+        }
+      ],
+      "group": "Booking and replies"
+    },
+    "P134": {
+      "merchant": "unassigned-store",
+      "carrier_quote_eur_cents": 350,
+      "replacement_fee_cents": 0,
+      "status": "missed",
+      "misses": 1,
+      "label": "The repeat pickup has no agreed payer",
+      "sample": "Nobody came to collect my return.",
+      "replay": [],
+      "group": "Disputes and handoffs"
+    }
+  }
+}
